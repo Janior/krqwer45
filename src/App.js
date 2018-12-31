@@ -11,20 +11,71 @@ class App extends Component {
         { id: 2, name: "Hacer la cama", done: true },
         { id: 3, name: "Leer un rato", done: false }
       ],
-      newTask: ''
+      newTask: '', 
+      isInValid: false 
     }
+    this.handleSubmit = this.handleSubmit.bind(this) 
+    this.inputchange = this.inputchange.bind(this) 
+    this.changeTaskState = this.changeTaskState.bind(this) 
   }
+  handleSubmit (event) { 
+     if (this.state.newTask === '') { 
+       this.setState({ isInValid: true }) 
+     } else { 
+       const oldTasks = this.state.tasks 
+       const last = oldTasks.slice(-1)[0] 
+       const newTask = {id: last.id + 1, name: this.state.newTask, done: false} 
+       this.setState({ 
+         tasks: [...oldTasks, newTask], 
+         newTask: '', 
+         isInValid: false 
+       }) 
+     } 
+     event.preventDefault() 
+   } 
+
+  inputchange (event) { 
+     this.setState({newTask: event.target.value}) 
+  } 
+   changeTaskState (id) { 
+     const newArr = this.state.tasks.map(task => { 
+       if (task.id === id) { 
+         task.done = !task.done 
+       } 
+       return task 
+     }) 
+     this.setState({tasks: newArr}) 
+  } 
+
+
   render() {
     return (
       <div className="wrapper">
         <div className="list">
           <h3>Por hacer:</h3>
           <ul className="todo">
-            {this.state.tasks.map((task, index) => <li key={task.id}>{task.name}</li>)}
+            {this.state.tasks.map((task) => { 
+               return ( 
+                 <li 
+                   className={task.done ? 'done' : ''} 
+                   key={task.id} 
+                   onClick={() => this.changeTaskState(task.id)} 
+                   > 
+                   {task.name} 
+                 </li> 
+               ) 
+             })} 
           </ul>
-          <form>
-            <input type="text" id="new-task" placeholder="Ingresa una tarea y oprime Enter" value={this.state.newTask} />
-          </form>
+           <form onSubmit={this.handleSubmit}> 
+             <input 
+               type='text' 
+               id='new-task' 
+               placeholder='Ingresa una tarea y oprime Enter' 
+               value={this.state.newTask} 
+               onChange={this.inputchange} 
+               className={this.state.isInValid ? 'error' : ''} 
+             /> 
+           </form> 
         </div>
       </div>
     )
